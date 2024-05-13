@@ -1,6 +1,16 @@
-import { ReactNode, createContext, useState, useReducer, useEffect } from 'react'
+import {
+  ReactNode,
+  createContext,
+  useState,
+  useReducer,
+  useEffect,
+} from 'react'
 import { Cycle, cyclesReducer } from '../reducers/cycles/reducer'
-import { ActionTypes, addNewCycleAction, interruptCurrentCycleAction, markCurrentCycleAsFinishedAction } from '../reducers/cycles/actions'
+import {
+  addNewCycleAction,
+  interruptCurrentCycleAction,
+  markCurrentCycleAsFinishedAction,
+} from '../reducers/cycles/actions'
 import { differenceInSeconds } from 'date-fns'
 
 interface CreateCycleData {
@@ -28,40 +38,41 @@ interface CyclesContextProviderProps {
 export function CyclesContextProvider({
   children,
 }: CyclesContextProviderProps) {
-  
-  const [cyclesState, dispatch] = useReducer(cyclesReducer, {
-    cycles: [],
-    activeCycle: null,
-  }, (initialState) => {
-    const storedStateAsJSON = localStorage.getItem('@ignite-timer:cycles-state-1.0.0')
+  const [cyclesState, dispatch] = useReducer(
+    cyclesReducer,
+    {
+      cycles: [],
+      activeCycle: null,
+    },
+    (initialState) => {
+      const storedStateAsJSON = localStorage.getItem(
+        '@ignite-timer:cycles-state-1.0.0',
+      )
 
-    if(storedStateAsJSON) {
-      return JSON.parse(storedStateAsJSON)
-    }
+      if (storedStateAsJSON) {
+        return JSON.parse(storedStateAsJSON)
+      }
 
-    return initialState
- })
- 
- const { cycles, activeCycleId } = cyclesState
- const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
+      return initialState
+    },
+  )
 
+  const { cycles, activeCycleId } = cyclesState
+  const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
 
   const [amountSecondsPassed, setAmountSecondsPassed] = useState(() => {
-    if(activeCycle){
+    if (activeCycle) {
       return differenceInSeconds(new Date(), new Date(activeCycle.startDate))
     }
-    
+
     return 0
   })
-  
 
   useEffect(() => {
     const stateJSON = JSON.stringify(cyclesState)
 
     localStorage.setItem('@ignite-timer:cycles-state-1.0.0', stateJSON)
   }, [cyclesState])
-
-
 
   function setSecondsPassed(seconds: number) {
     setAmountSecondsPassed(seconds)
